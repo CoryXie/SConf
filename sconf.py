@@ -116,5 +116,20 @@ if __name__ == "__main__":
     
     root = Tk()
     app = App(root, conf)
+
+    def SaveConfig():
+        conf.write_config(".config")
+ 
+    def QuitConfig():
+        root.quit()
+        
+    # create a toplevel menu
+    menubar = Menu(root)
+    menubar.add_command(label="Save Config!", command=SaveConfig)
+    menubar.add_command(label="Quit Config!", command=QuitConfig)
+
+    # display the menu
+    root.config(menu=menubar)
+        
     root.title(os.path.abspath('.').replace('\\', '/') + "/" + sys.argv[1])
     root.mainloop()
