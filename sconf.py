@@ -33,10 +33,10 @@ class App():
 
         self.add_root_items(self.items)
         
-        self.helptext = ScrolledText(master, width=130, height=10)
+        self.help = ScrolledText(master, width=130, height=10)
         
         self.tree.grid(row=0, column=0)
-        self.helptext.grid(row=1, column=0)
+        self.help.grid(row=1, column=0)
         ysb.grid(row=0, column=1, sticky='ns')
         xsb.grid(row=1, column=0, sticky='ew')
 
@@ -77,22 +77,36 @@ class App():
                 self.add_subr_items(parent, item.get_items())
             elif item.is_comment():
                 str = 'comment "{0}"'.format(item.get_text())
-                self.tree.insert("", "end", text=str)             
+                self.tree.insert("", "end", text=str)
         
     def OnDoubleClick(self, event):
         mitem = self.tree.identify('item',event.x, event.y)
         print("you clicked on", self.tree.item(mitem,"text"))
-        
+        values = self.tree.item(mitem, "values");
+        if (values):
+            symbal = self.conf.get_symbol(values[0])
+            print("symbal ", symbal.get_name(), " value ", symbal.get_user_value())
+            if (symbal):
+                if (symbal.get_type() == kconf.BOOL):
+                    if (symbal.get_user_value() == "y"):
+                        symbal.set_user_value("n")
+                        self.tree.item(mitem, values = [values[0], "n", values[2]])
+                        print("symbal ", symbal.get_name(), " changed to ", symbal.get_user_value())
+                    else:
+                        symbal.set_user_value("y")
+                        self.tree.item(mitem, values = [values[0], "y", values[2]])
+                        print("symbal ", symbal.get_name(), " changed to ", symbal.get_user_value())
+                    
     def OnSelection(self, event):
         mitem = self.tree.focus()
         values = self.tree.item(mitem,"values");
         if (values):
             symbal = self.conf.get_symbol(values[0])
             if (symbal):
-                self.helptext.delete(1.0, END)
+                self.help.delete(1.0, END)
                 help = symbal.get_help()
                 if (help):
-                    self.helptext.insert(INSERT, help)
+                    self.help.insert(INSERT, help)
         
 if __name__ == "__main__":
 
