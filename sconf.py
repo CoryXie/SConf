@@ -109,8 +109,14 @@ class App():
                     self.help.insert(INSERT, help)
         
 if __name__ == "__main__":
-
-    conf = kconf.Config(sys.argv[1])
+    
+    if len(sys.argv) <= 1:
+        cfgfile = os.path.abspath('.').replace('\\', '/') + "/" + "SConfigure"
+    else:
+        cfgfile = os.path.abspath('.').replace('\\', '/') + "/" + sys.argv[1]
+    
+    conf = kconf.Config(cfgfile)
+        
     if os.path.exists(".config"):
         conf.load_config(".config")
     
@@ -131,5 +137,5 @@ if __name__ == "__main__":
     # display the menu
     root.config(menu=menubar)
         
-    root.title(os.path.abspath('.').replace('\\', '/') + "/" + sys.argv[1])
+    root.title(cfgfile)
     root.mainloop()
