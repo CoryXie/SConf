@@ -33,6 +33,7 @@ PERFORMANCE OF THIS SOFTWARE."""
 import os
 import re
 import sys
+import platform
 
 # File layout:
 #
@@ -131,7 +132,7 @@ class Config(object):
         self.m = register_special_symbol(TRISTATE, "m", "m")
         self.y = register_special_symbol(TRISTATE, "y", "y")
         # DEFCONFIG_LIST uses this
-        register_special_symbol(STRING, "UNAME_RELEASE", os.uname()[2])
+        register_special_symbol(STRING, "UNAME_RELEASE", platform.uname()[2])
 
         # The symbol with "option defconfig_list" set, containing a list of
         # default .config files
