@@ -98,11 +98,9 @@ class App():
         
     def OnDoubleClick(self, event):
         mitem = self.tree.identify('item',event.x, event.y)
-        print("you clicked on", self.tree.item(mitem,"text"))
         values = self.tree.item(mitem, "values");
         if (values):
             symbol = self.conf.get_symbol(values[0])
-            print("symbol ", symbol.get_name(), " value ", symbol.get_user_value())
             if (symbol):
                 if (symbol.get_type() == kconf.BOOL):
                     if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
@@ -111,11 +109,12 @@ class App():
                     if (symbol.get_user_value() == "y"):
                         symbol.set_user_value("n")
                         self.tree.item(mitem, values = [values[0], "n", values[2]])
-                        print("symbol ", symbol.get_name(), " changed to ", symbol.get_user_value())
                     else:
                         symbol.set_user_value("y")
                         self.tree.item(mitem, values = [values[0], "y", values[2]])
-                        print("symbol ", symbol.get_name(), " changed to ", symbol.get_user_value())
+                    print("Dependents for " + symbol.get_name() + " {" + symbol.get_visibility() + "} " + " [" + symbol.get_value() + "]:")
+                    for sym in symbol.get_dependent_symbols():
+                        print(sym.get_name() + " {"+sym.get_visibility() + "} " + " [" + sym.get_value() + "] ")
                     
     def OnSelection(self, event):
         mitem = self.tree.focus()
