@@ -47,37 +47,39 @@ class App():
     
     def add_subr_items(self, parent, items):
         for item in items:
-            if item.is_symbol():
-                str = 'config {0}'.format(item.get_name())
-                self.tree.insert(parent, "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
-            elif item.is_menu():
-                str = 'menu "{0}"'.format(item.get_title())
-                parent = self.tree.insert(parent, "end", text=str)
-                self.add_subr_items(parent, item.get_items())
-            elif item.is_choice():
-                str = 'choice "{0}"'.format(item.get_prompts()[0])
-                parent = self.tree.insert(parent, "end", text=str)
-                self.add_subr_items(parent, item.get_items())
-            elif item.is_comment():
-                str = 'comment "{0}"'.format(item.get_text())
-                self.tree.insert(parent, "end", text=str)
+            if item.get_visibility() != "n":
+                if item.is_symbol():
+                    str = 'config {0}'.format(item.get_name())
+                    self.tree.insert(parent, "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
+                elif item.is_menu():
+                    str = 'menu "{0}"'.format(item.get_title())
+                    parent = self.tree.insert(parent, "end", text=str)
+                    self.add_subr_items(parent, item.get_items())
+                elif item.is_choice():
+                    str = 'choice "{0}"'.format(item.get_prompts()[0])
+                    parent = self.tree.insert(parent, "end", text=str)
+                    self.add_subr_items(parent, item.get_items())
+                elif item.is_comment():
+                    str = 'comment "{0}"'.format(item.get_text())
+                    self.tree.insert(parent, "end", text=str)
                 
     def add_root_items(self, items):
         for item in items:
-            if item.is_symbol():
-                str = 'config {0}'.format(item.get_name())
-                self.tree.insert("", "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
-            elif item.is_menu():
-                str = 'menu "{0}"'.format(item.get_title())
-                parent = self.tree.insert("", "end", text=str)
-                self.add_subr_items(parent, item.get_items())
-            elif item.is_choice():
-                str = 'choice "{0}"'.format(item.get_prompts()[0])
-                parent = self.tree.insert("", "end", text=str)
-                self.add_subr_items(parent, item.get_items())
-            elif item.is_comment():
-                str = 'comment "{0}"'.format(item.get_text())
-                self.tree.insert("", "end", text=str)
+            if item.get_visibility() != "n":
+                if item.is_symbol():
+                    str = 'config {0}'.format(item.get_name())
+                    self.tree.insert("", "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
+                elif item.is_menu():
+                    str = 'menu "{0}"'.format(item.get_title())
+                    parent = self.tree.insert("", "end", text=str)
+                    self.add_subr_items(parent, item.get_items())
+                elif item.is_choice():
+                    str = 'choice "{0}"'.format(item.get_prompts()[0])
+                    parent = self.tree.insert("", "end", text=str)
+                    self.add_subr_items(parent, item.get_items())
+                elif item.is_comment():
+                    str = 'comment "{0}"'.format(item.get_text())
+                    self.tree.insert("", "end", text=str)
         
     def OnDoubleClick(self, event):
         mitem = self.tree.identify('item',event.x, event.y)
