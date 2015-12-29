@@ -105,6 +105,9 @@ class App():
             print("symbol ", symbol.get_name(), " value ", symbol.get_user_value())
             if (symbol):
                 if (symbol.get_type() == kconf.BOOL):
+                    if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
+                        self.msg.set("A boolean choice, exactly one config option must be set to y, so no change here!")
+                        return
                     if (symbol.get_user_value() == "y"):
                         symbol.set_user_value("n")
                         self.tree.item(mitem, values = [values[0], "n", values[2]])
