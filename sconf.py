@@ -9,6 +9,43 @@ from ScrolledText import *
 import ttk
 import kconf
 
+class PopupWindow(object):
+    def __init__(self, root, config, value):
+        self.top=top=Toplevel(root)
+        self.l=Label(top, text=config)
+        self.l.grid(row=0, column=0)
+        self.e=Entry(top)
+        self.e.delete(0, END)
+        self.e.insert(0, value)
+        self.e.grid(row=0, column=1)
+        self.b=Button(top, text='Submit', command=self.Submit)
+        self.b.grid(row=1, column=0)
+        self.c=Button(top, text='Cancel', command=self.Cancel)
+        self.c.grid(row=1, column=1)
+        self.v=False
+        self.Center()
+        self.top.grid()
+        self.top.wm_title("Set " + config)
+        
+    def Submit(self):
+        self.value=self.e.get()
+        self.v=True        
+        self.top.destroy()
+        
+    def Cancel(self):
+        self.v=False        
+        self.top.destroy()
+        
+    def Center(self):
+        self.top.update()
+        w_req, h_req = self.top.winfo_width(), self.top.winfo_height()
+        w_form = self.top.winfo_rootx() - self.top.winfo_x()
+        w = w_req + w_form*2
+        h = h_req + (self.top.winfo_rooty() - self.top.winfo_y()) + w_form
+        x = (self.top.winfo_screenwidth() // 2) - (w // 2)
+        y = (self.top.winfo_screenheight() // 2) - (h // 2)
+        self.top.geometry('{0}x{1}+{2}+{3}'.format(w_req, h_req, x, y))    
+        
 class App():
     def __init__(self, root, conf):
         self.conf = conf
@@ -139,6 +176,16 @@ class App():
                 if (mitem):
                     self.tree.set(mitem, "value", sym.get_value())
             print("========================================")
+        elif (symbol.get_type() == kconf.INT or symbol.get_type() == kconf.HEX):
+            self.pop = PopupWindow(self.root, symbol.get_name(), symbol.get_value())
+            self.root.wait_window(self.pop.top)
+            if (self.pop.v == True):
+                print("Setting " + symbol.get_name() + " to " + self.pop.value)
+                symbol.set_user_value(self.pop.value)
+                print("Now " + symbol.get_name() + " is " + symbol.get_value())
+                self.tree.set(mitem, "value", symbol.get_value())
+            
+        return
                     
     def OnSelection(self, event):
         mitem = self.tree.focus()
@@ -151,14 +198,17 @@ class App():
                 help = symbol.get_help()
                 if (help):
                     self.help.insert(INSERT, help)
-                    
+
+        return
 
     def OnSaveConfig(self):
         self.conf.write_config(".config")
         self.msg.set("Configurations Saved!")
+        return
  
     def OnQuitConfig(self):
         self.root.quit()
+        return
         
 if __name__ == "__main__":
     
