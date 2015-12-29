@@ -2140,7 +2140,11 @@ class Symbol(Item):
         not). This is a subset of the symbols returned by
         get_referenced_symbols()."""
         return self.selected_syms
-
+    
+    def get_dependent_symbols(self):
+        """Returns the set() of all symbols X which depends on this symbol."""    
+        return self._get_dependent()
+        
     def set_user_value(self, v):
         """Sets the user value of the symbol.
 
