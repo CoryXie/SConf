@@ -10,10 +10,10 @@ import ttk
 import kconf
 
 class App():
-    def __init__(self, master, conf):
+    def __init__(self, root, conf):
         self.conf = conf
         self.items = conf.get_top_level_items()
-        self.tree = ttk.Treeview(master, selectmode="browse", columns=("name", "value", "type"), height=30)
+        self.tree = ttk.Treeview(root, selectmode="browse", columns=("name", "value", "type"), height=30)
         
         ysb = ttk.Scrollbar(orient=VERTICAL, command= self.tree.yview)
         xsb = ttk.Scrollbar(orient=HORIZONTAL, command= self.tree.xview)
@@ -33,9 +33,9 @@ class App():
 
         self.add_root_items(self.items)
         
-        self.help = ScrolledText(master, width=130, height=10)
+        self.help = ScrolledText(root, width=130, height=10)
         self.msg = StringVar()
-        self.info = Label(master, fg="green", font=("Helvetica", 16), anchor=W, justify=LEFT, textvariable=self.msg)
+        self.info = Label(root, fg="green", font=("Helvetica", 16), anchor=W, justify=LEFT, textvariable=self.msg)
         
         self.msg.set("Please set configurations, then you can save it!")
         
@@ -44,9 +44,19 @@ class App():
         self.info.grid(row=2, column=0)
         ysb.grid(row=0, column=1, sticky='ns')
         xsb.grid(row=1, column=0, sticky='ew')
-
-        master.grid()
         
+        root.grid()
+        
+        self.root = root
+        
+        # create a toplevel menu
+        menubar = Menu(root)
+        menubar.add_command(label="Save Config!", command=self.SaveConfig)
+        menubar.add_command(label="Quit Config!", command=self.QuitConfig)
+
+        # display the menu
+        root.config(menu=menubar)
+    
         self.tree.bind("<Double-1>", self.OnDoubleClick)
         self.tree.bind("<<TreeviewSelect>>", self.OnSelection)
     
@@ -116,6 +126,13 @@ class App():
                 if (help):
                     self.help.insert(INSERT, help)
                     
+
+    def SaveConfig(self):
+        self.conf.write_config(".config")
+        self.msg.set("Configurations Saved!")
+ 
+    def QuitConfig(self):
+        self.root.quit()
         
 if __name__ == "__main__":
     
@@ -131,21 +148,6 @@ if __name__ == "__main__":
     
     root = Tk()
     app = App(root, conf)
-
-    def SaveConfig():
-        conf.write_config(".config")
-        app.msg.set("Configurations Saved!")
- 
-    def QuitConfig():
-        root.quit()
-        
-    # create a toplevel menu
-    menubar = Menu(root)
-    menubar.add_command(label="Save Config!", command=SaveConfig)
-    menubar.add_command(label="Quit Config!", command=QuitConfig)
-
-    # display the menu
-    root.config(menu=menubar)
-        
+                
     root.title(cfgfile)
     root.mainloop()
