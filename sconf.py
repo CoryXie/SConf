@@ -34,9 +34,14 @@ class App():
         self.add_root_items(self.items)
         
         self.help = ScrolledText(master, width=130, height=10)
+        self.msg = StringVar()
+        self.info = Label(master, fg="green", font=("Helvetica", 16), anchor=W, justify=LEFT, textvariable=self.msg)
+        
+        self.msg.set("Please set configurations, then you can save it!")
         
         self.tree.grid(row=0, column=0)
         self.help.grid(row=1, column=0)
+        self.info.grid(row=2, column=0)
         ysb.grid(row=0, column=1, sticky='ns')
         xsb.grid(row=1, column=0, sticky='ew')
 
@@ -86,29 +91,31 @@ class App():
         print("you clicked on", self.tree.item(mitem,"text"))
         values = self.tree.item(mitem, "values");
         if (values):
-            symbal = self.conf.get_symbol(values[0])
-            print("symbal ", symbal.get_name(), " value ", symbal.get_user_value())
-            if (symbal):
-                if (symbal.get_type() == kconf.BOOL):
-                    if (symbal.get_user_value() == "y"):
-                        symbal.set_user_value("n")
+            symbol = self.conf.get_symbol(values[0])
+            print("symbol ", symbol.get_name(), " value ", symbol.get_user_value())
+            if (symbol):
+                if (symbol.get_type() == kconf.BOOL):
+                    if (symbol.get_user_value() == "y"):
+                        symbol.set_user_value("n")
                         self.tree.item(mitem, values = [values[0], "n", values[2]])
-                        print("symbal ", symbal.get_name(), " changed to ", symbal.get_user_value())
+                        print("symbol ", symbol.get_name(), " changed to ", symbol.get_user_value())
                     else:
-                        symbal.set_user_value("y")
+                        symbol.set_user_value("y")
                         self.tree.item(mitem, values = [values[0], "y", values[2]])
-                        print("symbal ", symbal.get_name(), " changed to ", symbal.get_user_value())
+                        print("symbol ", symbol.get_name(), " changed to ", symbol.get_user_value())
                     
     def OnSelection(self, event):
         mitem = self.tree.focus()
         values = self.tree.item(mitem,"values");
         if (values):
-            symbal = self.conf.get_symbol(values[0])
-            if (symbal):
+            symbol = self.conf.get_symbol(values[0])
+            if (symbol):                
+                self.msg.set("Please Double Click to update config option value!")
                 self.help.delete(1.0, END)
-                help = symbal.get_help()
+                help = symbol.get_help()
                 if (help):
                     self.help.insert(INSERT, help)
+                    
         
 if __name__ == "__main__":
     
@@ -127,6 +134,7 @@ if __name__ == "__main__":
 
     def SaveConfig():
         conf.write_config(".config")
+        app.msg.set("Configurations Saved!")
  
     def QuitConfig():
         root.quit()
