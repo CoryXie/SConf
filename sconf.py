@@ -95,26 +95,50 @@ class App():
                 elif item.is_comment():
                     str = 'comment "{0}"'.format(item.get_text())
                     self.tree.insert("", "end", text=str)
-        
+
+    def search_for_item(self, name, item=None):
+        children = self.tree.get_children(item)
+        for child in children:
+            nameval = self.tree.set(child, "name")
+            if nameval == name:
+                return child
+            else:
+                res = self.search_for_item(name, child)
+                if res:
+                    return res
+        return None
+                    
     def OnDoubleClick(self, event):
         mitem = self.tree.identify('item',event.x, event.y)
-        values = self.tree.item(mitem, "values");
-        if (values):
-            symbol = self.conf.get_symbol(values[0])
-            if (symbol):
-                if (symbol.get_type() == kconf.BOOL):
-                    if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
-                        self.msg.set("A boolean choice, exactly one config option must be set to y, so no change here!")
-                        return
-                    if (symbol.get_user_value() == "y"):
-                        symbol.set_user_value("n")
-                        self.tree.item(mitem, values = [values[0], "n", values[2]])
-                    else:
-                        symbol.set_user_value("y")
-                        self.tree.item(mitem, values = [values[0], "y", values[2]])
-                    print("Dependents for " + symbol.get_name() + " {" + symbol.get_visibility() + "} " + " [" + symbol.get_value() + "]:")
-                    for sym in symbol.get_dependent_symbols():
-                        print(sym.get_name() + " {"+sym.get_visibility() + "} " + " [" + sym.get_value() + "] ")
+        nameval = self.tree.set(mitem, "name")
+        symbol = self.conf.get_symbol(nameval)
+        
+        if symbol is None:
+            return
+        
+        if (symbol.get_type() == kconf.BOOL):
+            if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
+                self.msg.set("A boolean choice, exactly one config option must be set to y, so no change here!")
+                return
+            if (symbol.get_value() == "y"):
+                print("Setting " + symbol.get_name() + " to n")
+                symbol.set_user_value("n")
+                if (symbol.get_value() == "y"):
+                    self.msg.set("A boolean choice that is the only 'y' in the choice group can not be set to 'n'")
+                    symbol.set_user_value("y")
+                    return
+                self.tree.set(mitem, "value", symbol.get_value())
+            else:
+                print("Setting " + symbol.get_name() + " to y")
+                symbol.set_user_value("y")   
+                self.tree.set(mitem, "value", symbol.get_value())
+            print("Dependents for " + symbol.get_name() + " {" + symbol.get_visibility() + "} " + " [" + symbol.get_value() + "]:")
+            for sym in symbol.get_dependent_symbols():
+                print(sym.get_name() + " {"+sym.get_visibility() + "} " + " [" + sym.get_value() + "] ")
+                mitem = self.search_for_item(sym.get_name(), None)
+                if (mitem):
+                    self.tree.set(mitem, "value", sym.get_value())
+            print("========================================")
                     
     def OnSelection(self, event):
         mitem = self.tree.focus()
