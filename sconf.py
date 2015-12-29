@@ -51,8 +51,8 @@ class App():
         
         # create a toplevel menu
         menubar = Menu(root)
-        menubar.add_command(label="Save Config!", command=self.SaveConfig)
-        menubar.add_command(label="Quit Config!", command=self.QuitConfig)
+        menubar.add_command(label="Save Config!", command=self.OnSaveConfig)
+        menubar.add_command(label="Quit Config!", command=self.OnQuitConfig)
 
         # display the menu
         root.config(menu=menubar)
@@ -127,11 +127,11 @@ class App():
                     self.help.insert(INSERT, help)
                     
 
-    def SaveConfig(self):
+    def OnSaveConfig(self):
         self.conf.write_config(".config")
         self.msg.set("Configurations Saved!")
  
-    def QuitConfig(self):
+    def OnQuitConfig(self):
         self.root.quit()
         
 if __name__ == "__main__":
