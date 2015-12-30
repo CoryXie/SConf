@@ -16,9 +16,37 @@ Just copy the *sconf.py* and *kconf.py* into the root directory of source tree, 
 
 ```
 
+## How to debug SConf?
+
+The Python script `scopy.py` can be used to copy files with specific name pattern `pat` from `src` directory tree to `dst` directory tree. For example, you can use it to copy the `Kconfig` files in the whole Linux Kernel to `SConf/linux` so that can be used to test our `sconf.py` without going to the original Linux Kernel tree. The following is the work flow that I used to debug SConf for Linux Kernel. The same procedure can be used to debug other projects. 
+
+```console
+
+	$ git clone https://github.com/CoryXie/SConf.git SConf
+	$ cd SConf
+	$ python scopy.py ../linux-4.2 ./linux Kconfig*
+	$ cd linux
+	$ KERNELVERSION=4.2 ARCH=arm64 SRCARCH=arm64 python ../sconf.py Kconfig
+	$ cd ..; rm -rf linux # before you want to commit changes for SConf itself
+
+```
+
+Note that the in the pattern `Kconfig*`, the `*` is used to make sure things such as `Kconfig.debug` in the Kernel are also copied. In other projects you may have other config file naming such as what we recommended `SConfigure`, then you should adapt.
+
+Of course, in practice you will use **Sconf** by copying `sconf.py`/`kconf.py` into the source tree and run `sconf.py` in the source tree. This script is used for **SConf** development purpose.
+
+
 ## Status
 
-Right now it barely loads the configuration tree into the GUI and can perform some config option changes but I think we can quickly evolve it into a working **make xconfig** style work flow.
+Right now the following features have been implemented:
+
+* Loads the configuration tree into the GUI.
+* Double clicking on bool config options to toggle between 'y' and 'n' (with dependencies updated both in `kconf` database and in GUI).
+* Double clicking on int/hex/string config options will populate `PopupWindow` to get and update the config option values.
+* Info bar to notify the current actions/status.
+* Menu bar to save configuration and exit.
+
+I think we can quickly evolve it into a working **make xconfig** style work flow.
 
 ## License
 
