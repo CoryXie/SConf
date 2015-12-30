@@ -487,6 +487,54 @@ class Config(object):
             f.write("\n".join(conf_strings))
             f.write("\n")
 
+    def write_config_header(self, filename, header=None):
+        """Writes out symbol values in the familiar .config format.
+
+        Kconfiglib makes sure the format matches what the C implementation
+        would generate, down to whitespace. This eases testing.
+
+        filename: The filename under which to save the configuration.
+
+        header (default: None): A textual header that will appear at the
+           beginning of the file, with each line commented out automatically.
+           None means no header."""
+
+        for sym in self.syms_iter():
+            sym.already_written = False
+
+        with open(filename, "w") as f:
+            # Write header
+            if header is not None:
+                f.write("\n/*")
+                f.write(_comment(header))
+                f.write("\n*/")
+                
+            f.write("\n#ifndef __KCONFIG_H__" +
+                    "\n#define __KCONFIG_H__" +
+                    "\n#ifdef __cplusplus" +
+                    "\nextern \"C\" {" +
+                    "\n#endif")
+            f.write("\n")
+            f.write("\n/*\n Config Option Values \n*/")
+            f.write("\n#define KCONFIG_n 0")
+            f.write("\n#define KCONFIG_m 1")
+            f.write("\n#define KCONFIG_y 2")
+            f.write("\n\n")
+            
+            # Build and write configuration
+            conf_strings = []
+            _make_block_conf_header(self.top_block, conf_strings.append)
+            f.write("\n".join(conf_strings))
+            
+            f.write("\n")
+            f.write("\n#ifdef __cplusplus" +
+                    "\n}" +
+                    "\n#endif" +
+                    "\n#endif")
+            f.write("\n")
+            
+            f.write("\n")
+            
     def eval(self, s):
         """Returns the value of the expression 's' -- where 's' is represented
         as a string -- in the context of the configuration. Raises
@@ -2447,6 +2495,36 @@ class Symbol(Item):
             _internal_error("Internal error while creating .config: unknown "
                             'type "{0}".'.format(self.type))
 
+    def _make_conf_header(self, append_fn):
+        if self.already_written:
+            return
+
+        self.already_written = True
+
+        # Note: write_to_conf is determined in get_value()
+        val = self.get_value()
+        if not self.write_to_conf:
+            return
+
+        if self.type == BOOL or self.type == TRISTATE:
+            if val == "y" or val == "m":
+                append_fn("#define CONFIG_{0} KCONFIG_{1}".format(self.name, val))
+            else:
+                append_fn("#undef CONFIG_{0}".format(self.name))
+
+        elif self.type == INT or self.type == HEX:
+            append_fn("#define CONFIG_{0} {1}".format(self.name, val))
+
+        elif self.type == STRING:
+            # Escape \ and "
+            append_fn('#define CONFIG_{0} "{1}"'
+                      .format(self.name,
+                              val.replace("\\", "\\\\").replace('"', '\\"')))
+
+        else:
+            _internal_error("Internal error while creating .config: unknown "
+                            'type "{0}".'.format(self.type))
+                            
     def _get_dependent(self):
         """Returns the set of symbols that should be invalidated if the value
         of the symbol changes, because they might be affected by the change.
@@ -2619,6 +2697,12 @@ class Menu(Item):
            self.config._eval_expr(self.visible_if_expr) != "n":
             append_fn("\n#\n# {0}\n#".format(self.title))
         _make_block_conf(self.block, append_fn)
+        
+    def _make_conf_header(self, append_fn):
+        if self.config._eval_expr(self.dep_expr) != "n" and \
+           self.config._eval_expr(self.visible_if_expr) != "n":
+            append_fn("\n/*\n {0}\n*/".format(self.title))
+        _make_block_conf_header(self.block, append_fn)    
 
 class Choice(Item):
 
@@ -2909,6 +2993,9 @@ class Choice(Item):
     def _make_conf(self, append_fn):
         _make_block_conf(self.block, append_fn)
 
+    def _make_conf_header(self, append_fn):
+        _make_block_conf_header(self.block, append_fn)
+        
 class Comment(Item):
 
     """Represents a comment statement."""
@@ -2998,6 +3085,10 @@ class Comment(Item):
         if self.config._eval_expr(self.dep_expr) != "n":
             append_fn("\n#\n# {0}\n#".format(self.text))
 
+    def _make_conf_header(self, append_fn):
+        if self.config._eval_expr(self.dep_expr) != "n":
+            append_fn("\n/*\n {0}\n*/".format(self.text))
+            
 class Kconfig_Syntax_Error(Exception):
     """Exception raised for syntax errors."""
     pass
@@ -3233,6 +3324,15 @@ def _make_block_conf(block, append_fn):
     for item in block:
         item._make_conf(append_fn)
 
+def _make_block_conf_header(block, append_fn):
+    """Returns a list of config.h strings for a block (list) of items."""
+
+    # Collect the substrings in a list and later use join() instead of += to
+    # build the final .config contents. With older Python versions, this yields
+    # linear instead of quadratic complexity.
+    for item in block:
+        item._make_conf_header(append_fn)
+        
 def _sym_str_string(sym_or_str):
     if isinstance(sym_or_str, str):
         return '"' + sym_or_str + '"'

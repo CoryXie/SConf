@@ -236,6 +236,7 @@ class App():
 
     def OnSaveConfig(self):
         self.conf.write_config(".config")
+        self.conf.write_config_header("config.h")
         self.msg.set("Configurations Saved!")
         return
  
