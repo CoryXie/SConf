@@ -531,6 +531,9 @@ class Config(object):
         print_undef_assign: If True, such messages will be printed."""
         self.print_undef_assign = print_undef_assign
 
+    def is_tristate_enabled(self):
+        return self.get_symbol("MODULES").get_value() == "y"
+            
     def __str__(self):
         """Returns a string containing various information about the Config."""
         return _lines("Configuration",
