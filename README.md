@@ -1,6 +1,8 @@
 ## What is SConf?
 
-Working as companion to [SCons](http://www.scons.org/), **SConf** can be used to generate compile time configurations for Kconfig based software. It is a GUI frontend for [Kconfiglib](https://github.com/ulfalizer/Kconfiglib), written in Python with Tkinter. Users are recommended to write the configuration files with *SConfigure* as their names, in analogy to the name of *SConstruct* and *SConscript* in SCons world (although they can be named whatever you like, having a *similar* naming looks more beautiful to me). Maybe someday it could be integrated with Scons!
+Working as companion to [SCons](http://www.scons.org/), **SConf** can be used to generate compile time configurations for **Kconfig** based software. It is a GUI frontend for [Kconfiglib](https://github.com/ulfalizer/Kconfiglib), written in Python with Tkinter. Users are recommended to write the configuration files with *SConfigure* as their names, in analogy to the name of *SConstruct* and *SConscript* in SCons world (although they can be named whatever you like, having a *similar* naming looks more beautiful to me). Maybe someday it could be integrated with Scons!
+
+Note, however, **Sconf** is not bound to **SCons**, we just think it is a good example to use it as a companion to **SCons**. You can use it in anyway you like, only requiring you to follow **Kconfig** semantics to write the config options. The normal specified `.config` and `config.h` files are generated for you to include for conditional compilation.
 
 ## Why do SConf?
 
@@ -31,7 +33,7 @@ The Python script `scopy.py` can be used to copy files with specific name patter
 
 ```
 
-Note that the in the pattern `Kconfig*`, the `*` is used to make sure things such as `Kconfig.debug` in the Kernel are also copied. In other projects you may have other config file naming such as what we recommended `SConfigure`, then you should adapt.
+Note that in the pattern `Kconfig*`, the `*` is used to make sure things such as `Kconfig.debug` in the Kernel are also copied. In other projects you may have other config file naming such as what we recommended `SConfigure`, then you should adapt.
 
 Of course, in practice you will use **Sconf** by copying `sconf.py`/`kconf.py` into the source tree and run `sconf.py` in the source tree. This script is used for **SConf** development purpose.
 
@@ -47,7 +49,7 @@ Right now the following features have been implemented:
 * Info bar to notify the current actions/status.
 * Menu bar buttons to save configuration (both `.config` and `config.h`) and exit.
 
-I think we can quickly evolve it into a working **make xconfig** style work flow.
+I think most **make xconfig** style work flow is there, although we would definitely want to optimize it further.
 
 ## License
 
