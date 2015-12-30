@@ -153,7 +153,7 @@ class App():
         if symbol is None:
             return
         
-        if (symbol.get_type() == kconf.BOOL):
+        if (symbol.get_type() == kconf.BOOL or (symbol.get_type() == kconf.TRISTATE and not self.conf.is_tristate_enabled())):
             if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
                 self.msg.set("A boolean choice, exactly one config option must be set to y, so no change here!")
                 return
@@ -176,6 +176,39 @@ class App():
                 if (mitem):
                     self.tree.set(mitem, "value", sym.get_value())
             print("========================================")
+        elif (symbol.get_type() == kconf.TRISTATE and self.conf.is_tristate_enabled()):
+            nono = False
+            if (symbol.is_choice_symbol() and len(symbol.get_parent().get_items()) == 1):
+                self.msg.set("A single tristate choice in one choice group can not be set to 'n'")
+                nono = True
+            # 'y'->'m'->'n'->'y'->'m'->'n'->...
+            if (symbol.get_value() == "y"):
+                print("Setting " + symbol.get_name() + " to m")
+                symbol.set_user_value("m")
+                if (symbol.get_value() == "y"):
+                    self.msg.set("A tristate choice that is the only 'y' in the choice group can not be set to 'n'")
+                    symbol.set_user_value("y")
+                    return
+                self.tree.set(mitem, "value", symbol.get_value())
+            elif (symbol.get_value() == "m"):
+                print("Setting " + symbol.get_name() + " to n")
+                symbol.set_user_value("n")
+                if (symbol.get_value() == "m"):
+                    self.msg.set("A tristate choice that is the only 'm' in the choice group can not be set to 'n'")
+                    symbol.set_user_value("m")
+                    return
+                self.tree.set(mitem, "value", symbol.get_value())
+            else:
+                print("Setting " + symbol.get_name() + " to y")
+                symbol.set_user_value("y")   
+                self.tree.set(mitem, "value", symbol.get_value())
+            print("Dependents for " + symbol.get_name() + " {" + symbol.get_visibility() + "} " + " [" + symbol.get_value() + "]:")
+            for sym in symbol.get_dependent_symbols():
+                print(sym.get_name() + " {"+sym.get_visibility() + "} " + " [" + sym.get_value() + "] ")
+                mitem = self.search_for_item(sym.get_name(), None)
+                if (mitem):
+                    self.tree.set(mitem, "value", sym.get_value())
+            print("========================================")            
         elif (symbol.get_type() == kconf.INT or symbol.get_type() == kconf.HEX or symbol.get_type() == kconf.STRING):
             self.pop = PopupWindow(self.root, symbol.get_name(), symbol.get_value())
             self.root.wait_window(self.pop.top)

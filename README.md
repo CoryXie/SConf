@@ -41,8 +41,9 @@ Of course, in practice you will use **Sconf** by copying `sconf.py`/`kconf.py` i
 Right now the following features have been implemented:
 
 * Loads the configuration tree into the GUI.
-* Double clicking on bool config options to toggle between 'y' and 'n' (with dependencies updated both in `kconf` database and in GUI).
-* Double clicking on int/hex/string config options will populate `PopupWindow` to get and update the config option values.
+* Double clicking on `bool` config options to toggle between `y` and `n` (with dependencies updated both in `kconf` database and in GUI).
+* Double clicking on `tristate` config options to toggle between `y`, `m` and `n` (with dependencies updated both in `kconf` database and in GUI), like this : `y->m->n->y->m->n->...`
+* Double clicking on `int/hex/string` config options will populate `PopupWindow` to get and update the config option values.
 * Info bar to notify the current actions/status.
 * Menu bar to save configuration and exit.
 
