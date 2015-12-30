@@ -176,7 +176,7 @@ class App():
                 if (mitem):
                     self.tree.set(mitem, "value", sym.get_value())
             print("========================================")
-        elif (symbol.get_type() == kconf.INT or symbol.get_type() == kconf.HEX):
+        elif (symbol.get_type() == kconf.INT or symbol.get_type() == kconf.HEX or symbol.get_type() == kconf.STRING):
             self.pop = PopupWindow(self.root, symbol.get_name(), symbol.get_value())
             self.root.wait_window(self.pop.top)
             if (self.pop.v == True):
