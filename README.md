@@ -45,7 +45,7 @@ Right now the following features have been implemented:
 * Double clicking on `tristate` config options to toggle between `y`, `m` and `n` (with dependencies updated both in `kconf` database and in GUI), like this : `y->m->n->y->m->n->...`
 * Double clicking on `int/hex/string` config options will populate `PopupWindow` to get and update the config option values.
 * Info bar to notify the current actions/status.
-* Menu bar to save configuration and exit.
+* Menu bar buttons to save configuration (both `.config` and `config.h`) and exit.
 
 I think we can quickly evolve it into a working **make xconfig** style work flow.
 
