@@ -50,23 +50,23 @@ class App():
     def __init__(self, root, conf):
         self.conf = conf
         self.items = conf.get_top_level_items()
-        self.tree = ttk.Treeview(root, selectmode="browse", columns=("name", "value", "type"), height=30)
+        self.tree = ttk.Treeview(root, selectmode="browse", columns=("name", "value", "type"), displaycolumns=("value", "type"), height=30)
         
         ysb = ttk.Scrollbar(orient=VERTICAL, command= self.tree.yview)
         xsb = ttk.Scrollbar(orient=HORIZONTAL, command= self.tree.xview)
         self.tree.configure(yscroll=ysb.set, xscroll=xsb.set)
         
         self.tree.heading('#0', text='Configuration Tree', anchor='w')
-        self.tree.column("#0", minwidth=0, width=300, stretch=True)
+        self.tree.column("#0", minwidth=0, width=800, stretch=True)
 
-        self.tree.heading("name", text="Conguration Name")   
+        self.tree.heading("name", text="Name")   
         self.tree.column("name", minwidth=0, width=200, stretch=True)
         
-        self.tree.heading("value", text="Conguration Value")   
-        self.tree.column("value", minwidth=0, width=200, stretch=True)
+        self.tree.heading("value", text="Value")   
+        self.tree.column("value", minwidth=0, width=50, stretch=True)
         
-        self.tree.heading("type", text="Conguration Type")   
-        self.tree.column("type", minwidth=0, width=200, stretch=True)
+        self.tree.heading("type", text="Type")   
+        self.tree.column("type", minwidth=0, width=50, stretch=True)
 
         self.add_root_items(self.items)
         
@@ -102,36 +102,36 @@ class App():
             if item.get_visibility() != "n":
                 if item.is_symbol():
                     str = 'config {0}'.format(item.get_name())
-                    self.tree.insert(parent, "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
+                    self.tree.insert(parent, "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]], open=True)
                 elif item.is_menu():
                     str = 'menu "{0}"'.format(item.get_title())
-                    parent = self.tree.insert(parent, "end", text=str)
+                    parent = self.tree.insert(parent, "end", text=str, open=True)
                     self.add_subr_items(parent, item.get_items())
                 elif item.is_choice():
                     str = 'choice "{0}"'.format(item.get_prompts()[0])
-                    parent = self.tree.insert(parent, "end", text=str)
+                    parent = self.tree.insert(parent, "end", text=str, open=True)
                     self.add_subr_items(parent, item.get_items())
                 elif item.is_comment():
                     str = 'comment "{0}"'.format(item.get_text())
-                    self.tree.insert(parent, "end", text=str)
+                    self.tree.insert(parent, "end", text=str, open=True)
                 
     def add_root_items(self, items):
         for item in items:
             if item.get_visibility() != "n":
                 if item.is_symbol():
                     str = 'config {0}'.format(item.get_name())
-                    self.tree.insert("", "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]])
+                    self.tree.insert("", "end", text=str, values=[item.get_name(), item.get_value(), kconf.TYPENAME[item.get_type()]], open=True)
                 elif item.is_menu():
                     str = 'menu "{0}"'.format(item.get_title())
-                    parent = self.tree.insert("", "end", text=str)
+                    parent = self.tree.insert("", "end", text=str, open=True)
                     self.add_subr_items(parent, item.get_items())
                 elif item.is_choice():
                     str = 'choice "{0}"'.format(item.get_prompts()[0])
-                    parent = self.tree.insert("", "end", text=str)
+                    parent = self.tree.insert("", "end", text=str, open=True)
                     self.add_subr_items(parent, item.get_items())
                 elif item.is_comment():
                     str = 'comment "{0}"'.format(item.get_text())
-                    self.tree.insert("", "end", text=str)
+                    self.tree.insert("", "end", text=str, open=True)
 
     def search_for_item(self, name, item=None):
         children = self.tree.get_children(item)
