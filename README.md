@@ -2,7 +2,7 @@
 
 Working as companion to [SCons](http://www.scons.org/), **SConf** can be used to generate compile time configurations for **Kconfig** based software. It is a GUI frontend for [Kconfiglib](https://github.com/ulfalizer/Kconfiglib), written in Python with Tkinter. Users are recommended to write the configuration files with *SConfigure* as their names, in analogy to the name of *SConstruct* and *SConscript* in SCons world (although they can be named whatever you like, having a *similar* naming looks more beautiful to me). Maybe someday it could be integrated with Scons!
 
-Note, however, **Sconf** is not bound to **SCons**, we just think it is a good example to use it as a companion to **SCons**. You can use it in anyway you like, only requiring you to follow **Kconfig** semantics to write the config options. The normal specified `.config` and `config.h` files are generated for you to include for conditional compilation.
+Note, however, **Sconf** is not bound to **SCons**, we just think it is a good example to use it as a companion to **SCons**. You can use it in anyway you like, only requiring you to follow **Kconfig** semantics to write the config options. There are `.config`, `config.h` and `config.py` files generated for you to include in either source files or **SCons** *SConstruct* file for conditional compilation.
 
 ## Why do SConf?
 
@@ -47,9 +47,28 @@ Right now the following features have been implemented:
 * Double clicking on `tristate` config options to toggle between `y`, `m` and `n` (with dependencies updated both in `kconf` database and in GUI), like this : `y->m->n->y->m->n->...`
 * Double clicking on `int/hex/string` config options will populate `PopupWindow` to get and update the config option values.
 * Info bar to notify the current actions/status.
-* Menu bar to save configuration and exit.
+* Menu bar to save configuration (including `.config`, `config.h` and `config.py`) and exit.
 
 I think most **make xconfig** style work flow is there, although we would definitely want to optimize it further.
+
+Note that in the case when you want to use **SCons** with the **Sconf** generated `config.py`, you may need to import it like this:
+
+```python
+
+    from config import *
+    
+    env_options = {
+    "CC"    : CONFIG_CROSS_COMPILE + "gcc",
+    "CXX"   : CONFIG_CROSS_COMPILE + "g++",
+    "LD"    : CONFIG_CROSS_COMPILE + "g++",
+    "AR"    : CONFIG_CROSS_COMPILE + "ar",
+    "STRIP" : CONFIG_CROSS_COMPILE + "strip"
+    }
+
+    env = Environment(**env_options)
+    ...
+
+```
 
 ## License
 
