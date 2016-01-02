@@ -503,11 +503,16 @@ class Config(object):
             sym.already_written = False
 
         with open(filename, "w") as f:
+            f.write("#!/usr/bin/env python\n")
             # Write header
             if header is not None:
                 f.write(_comment(header))
                 f.write("\n")
 
+            f.write("\nclass Configuration(object):" +
+                    "\n\n\tdef __init__(self):")
+            f.write("\n")
+            
             # Build and write configuration
             conf_strings = []
             _make_block_conf_python(self.top_block, conf_strings.append)
@@ -2534,14 +2539,14 @@ class Symbol(Item):
             return
 
         if self.type == BOOL or self.type == TRISTATE:
-            append_fn('CONFIG_{0}="{1}"'.format(self.name, val))
+            append_fn('\t\tself.CONFIG_{0}="{1}"'.format(self.name, val))
 
         elif self.type == INT or self.type == HEX:
-            append_fn("CONFIG_{0}={1}".format(self.name, val))
+            append_fn("\t\tself.CONFIG_{0}={1}".format(self.name, val))
 
         elif self.type == STRING:
             # Escape \ and "
-            append_fn('CONFIG_{0}="{1}"'
+            append_fn('\t\tself.CONFIG_{0}="{1}"'
                       .format(self.name,
                               val.replace("\\", "\\\\").replace('"', '\\"')))
 

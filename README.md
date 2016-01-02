@@ -18,6 +18,53 @@ Just copy the *sconf.py* and *kconf.py* into the root directory of source tree, 
 
 ```
 
+After doing the configure actions, you may press the button to **Save Config**, which will save `.config`, `config.h` and `config.py`. You can use these generated configuration files as you wish.
+
+Specially, when you want to use **SCons** with the **Sconf** generated `config.py`, you may need to import and use the `config.py` like this in the top level `SConstruct`:
+
+```python
+
+    import config 
+    
+    conf = config.Configuration() # Create instance of Configuration class
+    
+    env_options = {
+        "CC"    : conf.CONFIG_CROSS_COMPILE + "gcc", # Use `conf` variable to access config options
+        "CXX"   : conf.CONFIG_CROSS_COMPILE + "g++",
+        "LD"    : conf.CONFIG_CROSS_COMPILE + "g++",
+        "AR"    : conf.CONFIG_CROSS_COMPILE + "ar",
+        "STRIP" : conf.CONFIG_CROSS_COMPILE + "strip"
+    }
+    
+    env = Environment(**env_options)
+    
+    env.Append(ENV = {'PATH' : os.environ['PATH']})
+    
+    Export('env')
+    Export('conf') # Like `env`, we export `conf` for subdir SConscripts
+    
+    env.SConscript('subdir1/SConscript')
+
+    # If you do not use the Export('env') and Export('conf') above, you
+    # may do the following to export the variables to specific subdirs.  
+
+    env.SConscript('subdir2/SConscript', {'env': env, 'conf': conf})
+
+    ...
+
+```
+
+Then in the other subdir `SConscript`s, you can do the following to import the `env` and `conf` then use them as normal.
+
+```python
+    
+    Import('env')
+    Import('conf')
+    
+    print conf.CONFIG_CROSS_COMPILE
+
+```
+
 ## How to debug SConf?
 
 The Python script `scopy.py` can be used to copy files with specific name pattern `pat` from `src` directory tree to `dst` directory tree. For example, you can use it to copy the `Kconfig` files in the whole Linux Kernel to `SConf/linux` so that can be used to test our `sconf.py` without going to the original Linux Kernel tree. The following is the work flow that I used to debug SConf for Linux Kernel. The same procedure can be used to debug other projects. 
@@ -50,25 +97,6 @@ Right now the following features have been implemented:
 * Menu bar to save configuration (including `.config`, `config.h` and `config.py`) and exit.
 
 I think most **make xconfig** style work flow is there, although we would definitely want to optimize it further.
-
-Note that in the case when you want to use **SCons** with the **Sconf** generated `config.py`, you may need to import it like this:
-
-```python
-
-    from config import *
-    
-    env_options = {
-    "CC"    : CONFIG_CROSS_COMPILE + "gcc",
-    "CXX"   : CONFIG_CROSS_COMPILE + "g++",
-    "LD"    : CONFIG_CROSS_COMPILE + "g++",
-    "AR"    : CONFIG_CROSS_COMPILE + "ar",
-    "STRIP" : CONFIG_CROSS_COMPILE + "strip"
-    }
-
-    env = Environment(**env_options)
-    ...
-
-```
 
 ## License
 
