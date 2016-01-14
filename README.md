@@ -65,6 +65,40 @@ Then in the other subdir `SConscript`s, you can do the following to import the `
 
 ```
 
+## Special Enhancements for writting Kconfig or SConfigure files
+
+You may want to have different *prefix* to be added before the generated options, or you may want to specify the directory to put the generated header file. To make it more flexible to accomendate various usages for different software projects, we have implemented some special enhancments to writting Kconfig or SConfigure files.
+
+1) You can use the `KCONFIG_PREFIX` config option in your *Kconfig* or *SConfigure* files to specify prefix for the generated config options. 
+
+```c
+
+	config KCONFIG_PREFIX
+		string
+		default "_SUPER_CONFIG_"
+	
+	config FOO
+		int "Foo Value"
+		default 10
+
+```
+
+With the above `KCONFIG_PREFIX` the generated option for `FOO` will be `_SUPER_CONFIG_FOO`. But if you say `default ""` then the generated option for `FOO` would be just `FOO`. This is useful for projects which would want to use the same option names in both *Kconfig* files and source code files (so that is easier to grep, for example), in this case, you can set `KCONFIG_PREFIX` to `default ""` and other options with full name such as `CONFIG_FOO`.
+
+2) You can use the `KCONFIG_HEADER_DIR` config option to specify the directory to put the generated header file. Note that this directory is relative to the base directory where you put the root *Kconfig* or *SConfigure* files.
+
+```c
+
+	config KCONFIG_HEADER_DIR
+		string
+		default "include/config"
+
+```
+
+With this `KCONFIG_HEADER_DIR` config option the generated `config.h` file will be in `$PROJECT_ROOT/include/config/config.h`. If you say `KCONFIG_HEADER_DIR` to be `""` or `"."` then it will generate the `config.h` as `$PROJECT_ROOT/config.h`.
+
+Note that currently `.config` and `config.py` are always generated in the `$PROJECT_ROOT` directory where you put root *Kconfig* or *SConfigure* files.
+
 ## How to debug SConf?
 
 The Python script `scopy.py` can be used to copy files with specific name pattern `pat` from `src` directory tree to `dst` directory tree. For example, you can use it to copy the `Kconfig` files in the whole Linux Kernel to `SConf/linux` so that can be used to test our `sconf.py` without going to the original Linux Kernel tree. The following is the work flow that I used to debug SConf for Linux Kernel. The same procedure can be used to debug other projects. 
