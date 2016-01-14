@@ -65,7 +65,7 @@ Then in the other subdir `SConscript`s, you can do the following to import the `
 
 ```
 
-## Special Enhancements for writting Kconfig or SConfigure files
+## Special Enhancements for writing Kconfig or SConfigure files
 
 You may want to have different *prefix* to be added before the generated options, or you may want to specify the directory to put the generated header file. To make it more flexible to accomendate various usages for different software projects, we have implemented some special enhancments to writting Kconfig or SConfigure files.
 
@@ -129,6 +129,7 @@ Right now the following features have been implemented:
 * Double clicking on `int/hex/string` config options will populate `PopupWindow` to get and update the config option values.
 * Info bar to notify the current actions/status.
 * Menu bar to save configuration (including `.config`, `config.h` and `config.py`) and exit.
+* Special enhancements for writing *Kconfig* or *SConfigure* files with `KCONFIG_PREFIX` and `KCONFIG_HEADER_DIR` config options.
 
 I think most **make xconfig** style work flow is there, although we would definitely want to optimize it further.
 
@@ -136,7 +137,7 @@ I think most **make xconfig** style work flow is there, although we would defini
 
 Copyright (c) 2011-2015, Ulf Magnusson ulfalizer@gmail.com
 
-Copyright (c) 2015, Cory Xie cory.xie@gmail.com
+Copyright (c) 2015-2016, Cory Xie cory.xie@gmail.com
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 
