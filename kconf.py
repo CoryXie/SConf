@@ -181,7 +181,13 @@ class Config(object):
 
         # Parse the Kconfig files
         self.top_block = self._parse_file(filename, None, None, None)
-
+        
+        sym = self.get_symbol("KCONFIG_PREFIX")
+        if sym is None: 
+            self.config_prefix = sym.get_value()
+        else:
+            self.config_prefix = "CONFIG_"
+        
         # Build Symbol.dep for all symbols
         self._build_dep()
 
@@ -603,6 +609,14 @@ class Config(object):
 
         print_warnings: True if warnings should be printed."""
         self.print_warnings = print_warnings
+
+    def get_config_prefix(self):
+        """ Get the prefix added to the config option name."""
+        # The prefix added to the config option name
+        sym = self.get_symbol("KCONFIG_PREFIX")
+        if sym is not None:
+            self.config_prefix = sym.get_value()
+        return self.config_prefix
 
     def set_print_undef_assign(self, print_undef_assign):
         """Determines whether informational messages related to assignments to
@@ -2510,16 +2524,16 @@ class Symbol(Item):
 
         if self.type == BOOL or self.type == TRISTATE:
             if val == "y" or val == "m":
-                append_fn("CONFIG_{0}={1}".format(self.name, val))
+                append_fn(self.config.config_prefix + "{0}={1}".format(self.name, val))
             else:
-                append_fn("# CONFIG_{0} is not set".format(self.name))
+                append_fn("# " + self.config.config_prefix + "{0} is not set".format(self.name))
 
         elif self.type == INT or self.type == HEX:
-            append_fn("CONFIG_{0}={1}".format(self.name, val))
+            append_fn(self.config.config_prefix + "{0}={1}".format(self.name, val))
 
         elif self.type == STRING:
             # Escape \ and "
-            append_fn('CONFIG_{0}="{1}"'
+            append_fn(self.config.config_prefix + '{0}="{1}"'
                       .format(self.name,
                               val.replace("\\", "\\\\").replace('"', '\\"')))
 
@@ -2539,14 +2553,14 @@ class Symbol(Item):
             return
 
         if self.type == BOOL or self.type == TRISTATE:
-            append_fn('\t\tself.CONFIG_{0}="{1}"'.format(self.name, val))
+            append_fn('\t\tself.' + self.config.config_prefix + '{0}="{1}"'.format(self.name, val))
 
         elif self.type == INT or self.type == HEX:
-            append_fn("\t\tself.CONFIG_{0}={1}".format(self.name, val))
+            append_fn("\t\tself." + self.config.config_prefix + "{0}={1}".format(self.name, val))
 
         elif self.type == STRING:
             # Escape \ and "
-            append_fn('\t\tself.CONFIG_{0}="{1}"'
+            append_fn('\t\tself.' + self.config.config_prefix + '{0}="{1}"'
                       .format(self.name,
                               val.replace("\\", "\\\\").replace('"', '\\"')))
 
@@ -2567,16 +2581,16 @@ class Symbol(Item):
 
         if self.type == BOOL or self.type == TRISTATE:
             if val == "y" or val == "m":
-                append_fn("#define CONFIG_{0} KCONFIG_{1}".format(self.name, val))
+                append_fn("#define " + self.config.config_prefix + "{0} KCONFIG_{1}".format(self.name, val))
             else:
-                append_fn("#undef CONFIG_{0}".format(self.name))
+                append_fn("#undef " + self.config.config_prefix + "{0}".format(self.name))
 
         elif self.type == INT or self.type == HEX:
-            append_fn("#define CONFIG_{0} {1}".format(self.name, val))
+            append_fn("#define " + self.config.config_prefix + "{0} {1}".format(self.name, val))
 
         elif self.type == STRING:
             # Escape \ and "
-            append_fn('#define CONFIG_{0} "{1}"'
+            append_fn('#define ' + self.config.config_prefix + '{0} "{1}"'
                       .format(self.name,
                               val.replace("\\", "\\\\").replace('"', '\\"')))
 
