@@ -183,11 +183,18 @@ class Config(object):
         self.top_block = self._parse_file(filename, None, None, None)
         
         sym = self.get_symbol("KCONFIG_PREFIX")
-        if sym is None: 
+        if sym is not None: 
             self.config_prefix = sym.get_value()
         else:
             self.config_prefix = "CONFIG_"
-        
+
+        sym = self.get_symbol("KCONFIG_HEADER_DIR")
+        dir = sym.get_value()
+        if sym is not None and dir != "": 
+            self.config_header_dir = dir
+        else:
+            self.config_header_dir = self.base_dir
+                           
         # Build Symbol.dep for all symbols
         self._build_dep()
 
@@ -617,6 +624,15 @@ class Config(object):
         if sym is not None:
             self.config_prefix = sym.get_value()
         return self.config_prefix
+
+    def get_config_header_dir(self):
+        """ Get the config.h header file directory (relative to base_dir)."""
+        # The prefix added to the config option name
+        sym = self.get_symbol("KCONFIG_HEADER_DIR")
+        dir = sym.get_value()
+        if sym is not None and dir != "":
+            self.config_header_dir = dir
+        return self.config_header_dir        
 
     def set_print_undef_assign(self, print_undef_assign):
         """Determines whether informational messages related to assignments to

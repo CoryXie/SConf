@@ -237,7 +237,12 @@ class App():
     def OnSaveConfig(self):
         self.conf.write_config(".config")
         self.conf.write_config_python("config.py")
-        self.conf.write_config_header("config.h")
+        header_dir = conf.get_config_header_dir()
+        dstfile = os.path.join(header_dir, "config.h") 
+        dstdir = os.path.split(dstfile)[0]
+        if not os.path.exists(dstdir):
+            os.makedirs(dstdir)
+        self.conf.write_config_header(dstfile)
         self.msg.set("Configurations Saved!")
         return
  
